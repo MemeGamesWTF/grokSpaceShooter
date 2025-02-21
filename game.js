@@ -1,77 +1,133 @@
 // game.js
-const gameContainer = document.querySelector('.game-container');
+const startScreen = document.getElementById('start-screen');
+const gameScreen = document.getElementById('game-screen');
+const gameOverScreen = document.getElementById('game-over-screen');
+const startButton = document.getElementById('start-button');
+const restartButton = document.getElementById('restart-button');
 const spaceship = document.getElementById('spaceship');
 const scoreElement = document.getElementById('score');
+const finalScoreElement = document.getElementById('final-score');
+
 let score = 0;
-let gameSpeed = 1; // Increases over time
+let gameSpeed = 1;
 let lastShot = 0;
+let gameActive = false;
+let shipX = window.innerWidth / 2 - 20;
+let shipY = window.innerHeight - 100;
+let spawnRate = 1500; // Initial spawn delay in ms
+let activeEnemies = 0; // Track current enemy count
+let maxEnemies = 1; // Start with 1 enemy at a time
+let spawnIncreaseInterval; // To increase enemy count over time
+
+// Screen Management
+function showScreen(screen) {
+    startScreen.classList.remove('active');
+    gameScreen.classList.remove('active');
+    gameOverScreen.classList.remove('active');
+    screen.classList.add('active');
+}
+
+// Start Game
+startButton.addEventListener('click', startGame);
+restartButton.addEventListener('click', startGame);
+
+function startGame() {
+    score = 0;
+    gameSpeed = 1;
+    spawnRate = 1500; // Reset spawn rate
+    maxEnemies = 1; // Reset max enemies
+    activeEnemies = 0;
+    scoreElement.textContent = score;
+    shipX = window.innerWidth / 2 - 20;
+    shipY = window.innerHeight - 100;
+    updateShipPosition();
+    gameActive = true;
+    showScreen(gameScreen);
+    gameLoop();
+    spawnEnemies();
+    // Increase enemy count over time
+    spawnIncreaseInterval = setInterval(increaseEnemyCount, 10000); // Every 10 seconds
+}
+
+function increaseEnemyCount() {
+    if (!gameActive) return;
+    maxEnemies += 1; // Allow more simultaneous enemies
+    spawnRate = Math.max(500, spawnRate - 200); // Decrease spawn delay, min 500ms
+    console.log(`Max Enemies: ${maxEnemies}, Spawn Rate: ${spawnRate}`); // Debugging
+}
 
 // Spaceship Movement
-let shipX = 50;
-let shipY = window.innerHeight / 2;
-
-gameContainer.addEventListener('mousemove', (e) => {
-    shipX = e.clientX - 30; // Offset by half spaceship width
-    shipY = e.clientY - 20; // Offset by half spaceship height
+gameScreen.addEventListener('mousemove', (e) => {
+    if (!gameActive) return;
+    shipX = e.clientX - 20;
     updateShipPosition();
 });
 
 function updateShipPosition() {
-    spaceship.style.left = `${Math.max(0, Math.min(shipX, window.innerWidth - 60))}px`;
-    spaceship.style.top = `${Math.max(0, Math.min(shipY, window.innerHeight - 40))}px`;
+    spaceship.style.left = `${Math.max(0, Math.min(shipX, window.innerWidth - 40))}px`;
+    spaceship.style.top = `${shipY}px`;
 }
 
 // Shooting
 document.addEventListener('click', shoot);
 function shoot() {
+    if (!gameActive) return;
     const now = Date.now();
-    if (now - lastShot < 200) return; // Shooting cooldown (200ms)
+    if (now - lastShot < 200) return;
     lastShot = now;
 
     const projectile = document.createElement('div');
     projectile.classList.add('projectile');
-    projectile.style.left = `${shipX + 60}px`; // Right of spaceship
-    projectile.style.top = `${shipY + 17}px`; // Middle of spaceship
-    gameContainer.appendChild(projectile);
+    projectile.style.left = `${shipX + 17}px`;
+    projectile.style.top = `${shipY - 10}px`;
+    gameScreen.appendChild(projectile);
 
-    let projX = shipX + 60;
+    let projY = shipY - 10;
     const projInterval = setInterval(() => {
-        projX += 10 * gameSpeed;
-        projectile.style.left = `${projX}px`;
-        if (projX > window.innerWidth) {
+        projY -= 10 * gameSpeed;
+        projectile.style.top = `${projY}px`;
+        if (projY < -10) {
             projectile.remove();
             clearInterval(projInterval);
-        }
-    }, 16); // ~60fps
-}
-
-// Enemy Spawning
-function spawnEnemy() {
-    const enemy = document.createElement('div');
-    enemy.classList.add('enemy');
-    const enemyY = Math.random() * (window.innerHeight - 40);
-    enemy.style.left = `${window.innerWidth}px`;
-    enemy.style.top = `${enemyY}px`;
-    gameContainer.appendChild(enemy);
-
-    let enemyX = window.innerWidth;
-    const enemyInterval = setInterval(() => {
-        enemyX -= 3 * gameSpeed;
-        enemy.style.left = `${enemyX}px`;
-        if (enemyX < -40) {
-            enemy.remove();
-            clearInterval(enemyInterval);
         }
     }, 16);
 }
 
-setInterval(spawnEnemy, 1500 / gameSpeed); // Spawn every 1.5s, adjusted by speed
+// Enemy Spawning
+function spawnEnemies() {
+    if (!gameActive) return;
+    if (activeEnemies < maxEnemies) {
+        const enemy = document.createElement('div');
+        enemy.classList.add('enemy');
+        const enemyX = Math.random() * (window.innerWidth - 40);
+        enemy.style.left = `${enemyX}px`;
+        enemy.style.top = `-40px`;
+        gameScreen.appendChild(enemy);
+        activeEnemies++;
 
-// Collision Detection and Game Loop
+        let enemyY = -40;
+        const enemyInterval = setInterval(() => {
+            enemyY += 3 * gameSpeed;
+            enemy.style.top = `${enemyY}px`;
+            if (enemyY > window.innerHeight) {
+                enemy.remove();
+                activeEnemies--;
+                clearInterval(enemyInterval);
+            }
+        }, 16);
+    }
+
+    setTimeout(spawnEnemies, spawnRate / gameSpeed); // Dynamic spawn timing
+}
+
+// Game Loop (Collisions and Difficulty)
 function gameLoop() {
+    if (!gameActive) return;
     const projectiles = document.querySelectorAll('.projectile');
     const enemies = document.querySelectorAll('.enemy');
+    const shipRect = spaceship.getBoundingClientRect();
 
+    // Projectile-Enemy Collisions
     projectiles.forEach((projectile) => {
         const projRect = projectile.getBoundingClientRect();
         enemies.forEach((enemy) => {
@@ -82,19 +138,32 @@ function gameLoop() {
                 projRect.top < enemyRect.bottom &&
                 projRect.bottom > enemyRect.top
             ) {
-                // Collision Detected
                 score += 10;
                 scoreElement.textContent = score;
                 createExplosion(enemyRect.left, enemyRect.top);
                 projectile.remove();
                 enemy.remove();
+                activeEnemies--;
             }
         });
     });
 
-    // Increase difficulty
+    // Spaceship-Enemy Collisions
+    enemies.forEach((enemy) => {
+        const enemyRect = enemy.getBoundingClientRect();
+        if (
+            shipRect.left < enemyRect.right &&
+            shipRect.right > enemyRect.left &&
+            shipRect.top < enemyRect.bottom &&
+            shipRect.bottom > enemyRect.top
+        ) {
+            endGame();
+        }
+    });
+
+    // Increase Game Speed
     if (score > 0 && score % 50 === 0) {
-        gameSpeed += 0.1;
+        gameSpeed = Math.min(gameSpeed + 0.1, 3);
     }
 
     requestAnimationFrame(gameLoop);
@@ -105,9 +174,19 @@ function createExplosion(x, y) {
     explosion.classList.add('explosion');
     explosion.style.left = `${x - 10}px`;
     explosion.style.top = `${y - 10}px`;
-    gameContainer.appendChild(explosion);
-    setTimeout(() => explosion.remove(), 500); // Match explosion animation duration
+    gameScreen.appendChild(explosion);
+    setTimeout(() => explosion.remove(), 500);
 }
 
-// Start the Game
-gameLoop();
+// Game Over
+function endGame() {
+    gameActive = false;
+    clearInterval(spawnIncreaseInterval); // Stop enemy count increase
+    finalScoreElement.textContent = score;
+    showScreen(gameOverScreen);
+    document.querySelectorAll('.projectile, .enemy').forEach(el => el.remove());
+    activeEnemies = 0;
+}
+
+// Initial State
+showScreen(startScreen);

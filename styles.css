@@ -4,51 +4,130 @@ body {
     padding: 0;
     height: 100vh;
     overflow: hidden;
-    background: #0d0d1a; /* Dark cyberpunk tone */
-    font-family: 'Courier New', monospace; /* Retro-futuristic font */
+    background: #0d0d1a;
+    font-family: 'Courier New', monospace;
 }
 
-.game-container {
-    position: relative;
+/* Screen Management */
+.screen {
+    position: absolute;
     width: 100%;
     height: 100%;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #00ffcc;
+    text-shadow: 0 0 10px #00ffcc;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Glitch Effect */
+.glitch {
+    font-size: 64px;
+    position: relative;
+    animation: glitch 2s infinite;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch::before {
+    color: #ff00cc;
+    animation: glitch-top 1s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+}
+
+.glitch::after {
+    color: #ffff33;
+    animation: glitch-bottom 1.5s infinite;
+    clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+}
+
+@keyframes glitch {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-5px, 5px); }
+    40% { transform: translate(5px, -5px); }
+}
+
+@keyframes glitch-top {
+    0%, 100% { transform: translate(0); }
+    50% { transform: translate(-3px, 0); }
+}
+
+@keyframes glitch-bottom {
+    0%, 100% { transform: translate(0); }
+    50% { transform: translate(3px, 0); }
+}
+
+/* Buttons */
+button {
+    padding: 15px 30px;
+    font-size: 24px;
+    background: none;
+    border: 2px solid #ff00cc;
+    color: #ff00cc;
+    text-shadow: 0 0 10px #ff00cc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #ff00cc;
+    color: #0d0d1a;
+    box-shadow: 0 0 20px #ff00cc;
+}
+
+/* Game Container */
+.game-container {
+    position: relative;
     overflow: hidden;
 }
 
 /* Scrolling Background */
 .background {
     position: absolute;
-    width: 200%;
-    height: 100%;
-    background: linear-gradient(90deg, #0d0d1a, #1a1a33, #0d0d1a),
-                url('https://via.placeholder.com/1200x600/1a1a33/0d0d1a?text=Cityscape'); /* Replace with cyberpunk city image */
+    width: 100%;
+    height: 200%; /* Double height for vertical scroll */
+    background: linear-gradient(0deg, #0d0d1a, #1a1a33, #0d0d1a),
+                url('https://via.placeholder.com/600x1200/1a1a33/0d0d1a?text=Cityscape');
     background-size: cover, 100% 100%;
-    animation: scroll 15s linear infinite;
+    animation: scroll-vertical 20s linear infinite;
 }
 
-@keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+@keyframes scroll-vertical {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
 }
 
 /* Spaceship */
 .spaceship {
     position: absolute;
-    width: 60px;
-    height: 40px;
-    background: linear-gradient(45deg, #00ffcc, #ff00cc);
+    width: 40px;
+    height: 60px;
+    background: linear-gradient(0deg, #00ffcc, #ff00cc);
     border: 2px solid #00ffcc;
     border-radius: 10px;
     box-shadow: 0 0 15px #00ffcc, 0 0 25px #ff00cc;
-    transition: all 0.1s ease; /* Smooth movement */
+    transition: all 0.1s ease;
     z-index: 10;
 }
 
 /* Projectiles */
 .projectile {
     position: absolute;
-    width: 10px;
-    height: 5px;
+    width: 5px;
+    height: 10px;
     background: #ff00cc;
     box-shadow: 0 0 10px #ff00cc;
     border-radius: 50%;
@@ -65,7 +144,7 @@ body {
     box-shadow: 0 0 15px #ff3333;
 }
 
-/* Explosion Effect */
+/* Explosion */
 .explosion {
     position: absolute;
     width: 60px;
@@ -81,7 +160,7 @@ body {
     100% { transform: scale(1.5); opacity: 0; }
 }
 
-/* Score Display */
+/* Score */
 .score {
     position: absolute;
     top: 20px;
