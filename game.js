@@ -8,6 +8,9 @@ const restartButton = document.getElementById('restart-button');
 const pauseRestartButton = document.getElementById('pause-restart-button');
 const resumeButton = document.getElementById('resume-button');
 const pauseButton = document.getElementById('pause-button');
+const shootBtn = document.getElementById('shoot-btn');
+const moveLeftBtn = document.getElementById('move-left');
+const moveRightBtn = document.getElementById('move-right');
 const difficultySelect = document.getElementById('difficulty');
 const spaceship = document.getElementById('spaceship');
 const scoreElement = document.getElementById('score');
@@ -31,6 +34,7 @@ let shipX, shipY;
 let activeEnemies = 0;
 let bossActive = false;
 let spawnIncreaseInterval, timerInterval;
+let moveSpeed = 5;
 
 function setDifficulty(difficulty) {
     switch (difficulty) {
@@ -88,6 +92,26 @@ resumeButton.addEventListener('click', () => {
 });
 pauseButton.addEventListener('click', pauseGame);
 
+// Mobile Controls
+shootBtn.addEventListener('click', shoot);
+let moveLeftInterval, moveRightInterval;
+moveLeftBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    moveLeftInterval = setInterval(() => {
+        shipX -= moveSpeed;
+        updateShipPosition();
+    }, 16);
+});
+moveLeftBtn.addEventListener('touchend', () => clearInterval(moveLeftInterval));
+moveRightBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    moveRightInterval = setInterval(() => {
+        shipX += moveSpeed;
+        updateShipPosition();
+    }, 16);
+});
+moveRightBtn.addEventListener('touchend', () => clearInterval(moveRightInterval));
+
 function startGame() {
     setDifficulty(difficultySelect.value);
     score = 0;
@@ -99,8 +123,9 @@ function startGame() {
     highScoreElement.textContent = highScore;
     
     const tvRect = tvFrame.getBoundingClientRect();
-    shipX = tvRect.width / 2 - spaceship.offsetWidth / 2;
-    shipY = tvRect.height - spaceship.offsetHeight - 20;
+    shipX = tvRect.width / 2 - spaceship.offsetWidth / 2; // Center horizontally
+    shipY = tvRect.height * 0.75 - spaceship.offsetHeight; // 75% up the frame
+    console.log(`TV Height: ${tvRect.height}, Ship Height: ${spaceship.offsetHeight}, ShipY: ${shipY}`); // Debug
     updateShipPosition();
     
     gameActive = true;
@@ -161,8 +186,7 @@ function updateShipPosition() {
     const shipHeight = spaceship.offsetHeight;
     
     shipX = Math.max(0, Math.min(shipX, tvRect.width - shipWidth));
-    shipY = Math.max(0, Math.min(shipY, tvRect.height - shipHeight));
-    
+    shipY = Math.max(tvRect.height * 0.5, Math.min(shipY, tvRect.height - shipHeight)); // Allow movement up to halfway
     spaceship.style.left = `${shipX}px`;
     spaceship.style.top = `${shipY}px`;
 }
@@ -171,7 +195,7 @@ function updateShipPosition() {
 document.addEventListener('click', shoot);
 gameScreen.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    shoot();
+    if (!e.target.closest('.mobile-controls')) shoot();
 }, { passive: false });
 
 function shoot() {
@@ -188,6 +212,7 @@ function shoot() {
     projectile.classList.add('spawn-anim');
     shootSound.currentTime = 0;
     shootSound.play();
+    if (navigator.vibrate) navigator.vibrate(50);
 
     let projY = shipY - 10;
     const projInterval = setInterval(() => {
@@ -320,7 +345,6 @@ function gameLoop() {
             if (checkCollision(projRect, enemyRect)) {
                 score += enemy.classList.contains('fast') ? 15 : 10;
                 scoreElement.textContent = score;
-                // Adjust explosion position relative to game-screen
                 const gameScreenRect = gameScreen.getBoundingClientRect();
                 const explosionX = enemyRect.left - gameScreenRect.left;
                 const explosionY = enemyRect.top - gameScreenRect.top;
@@ -334,7 +358,6 @@ function gameLoop() {
             const bossRect = boss.getBoundingClientRect();
             if (checkCollision(projRect, bossRect)) {
                 boss.dispatchEvent(new Event('hit'));
-                // Adjust explosion position for boss
                 const gameScreenRect = gameScreen.getBoundingClientRect();
                 const explosionX = projRect.left - gameScreenRect.left;
                 const explosionY = projRect.top - gameScreenRect.top;
@@ -379,17 +402,23 @@ function hitPlayer(element) {
     element.remove();
     explosionSound.currentTime = 0;
     explosionSound.play();
+    if (navigator.vibrate) navigator.vibrate(100);
+    gameScreen.classList.add('shake');
+    setTimeout(() => gameScreen.classList.remove('shake'), 200);
     if (lives <= 0) endGame(false);
 }
 
 function createExplosion(x, y) {
     const explosion = document.createElement('div');
     explosion.classList.add('explosion');
-    explosion.style.left = `${x - 10}px`; // Adjusted to center explosion
-    explosion.style.top = `${y - 10}px`;  // Adjusted to center explosion
+    explosion.style.left = `${x - 10}px`;
+    explosion.style.top = `${y - 10}px`;
     gameScreen.appendChild(explosion);
     explosionSound.currentTime = 0;
     explosionSound.play();
+    if (navigator.vibrate) navigator.vibrate(75);
+    gameScreen.classList.add('shake');
+    setTimeout(() => gameScreen.classList.remove('shake'), 200);
     setTimeout(() => explosion.remove(), 500);
 }
 

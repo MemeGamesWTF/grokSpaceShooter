@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Strike</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <!-- TV Frame -->
@@ -24,13 +25,13 @@
         <!-- Start Screen -->
         <div class="screen start-screen active" id="start-screen">
             <h1 class="glitch" data-text="Neon Strike">Neon Strike</h1>
-            <p>Move: Mouse/Touch | Shoot: Click/Tap | Pause: P/Button | Survive, defeat the boss!</p>
+            <p>Move: Drag/Touch | Shoot: Tap/Button | Pause: P/<i class="fa-solid fa-pause"></i></p>
             <select id="difficulty">
                 <option value="easy">Easy</option>
                 <option value="medium" selected>Medium</option>
                 <option value="hard">Hard</option>
             </select>
-            <button id="start-button">Start Game</button>
+            <button id="start-button"><i class="fa-solid fa-play"></i></button>
         </div>
 
         <!-- Game Screen -->
@@ -38,14 +39,22 @@
             <div class="background"></div>
             <div class="spaceship" id="spaceship"></div>
             <div class="score">Score: <span id="score">0</span> | Lives: <span id="lives">3</span> | Time: <span id="timer">2:00</span></div>
-            <button id="pause-button">| |</button>
+            <button id="pause-button"><i class="fa-solid fa-pause"></i></button>
+            <!-- Mobile Controls -->
+            <div class="mobile-controls">
+                <button id="shoot-btn"><i class="fa-solid fa-bolt"></i></button>
+                <div class="move-controls">
+                    <button id="move-left"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button id="move-right"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
         </div>
 
         <!-- Pause Menu -->
         <div class="screen pause-menu" id="pause-menu">
             <h1 class="glitch" data-text="Paused">Paused</h1>
-            <button id="resume-button">Resume</button>
-            <button id="pause-restart-button">Restart</button>
+            <button id="resume-button"><i class="fa-solid fa-play"></i></button>
+            <button id="pause-restart-button"><i class="fa-solid fa-redo"></i></button>
         </div>
 
         <!-- Game Over Screen -->
@@ -53,7 +62,7 @@
             <h1 class="glitch" id="game-over-title" data-text="Game Over">Game Over</h1>
             <p>Final Score: <span id="final-score">0</span></p>
             <p>High Score: <span id="high-score">0</span></p>
-            <button id="restart-button">Restart</button>
+            <button id="restart-button"><i class="fa-solid fa-redo"></i></button>
         </div>
     </div>
 
