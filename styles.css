@@ -171,13 +171,9 @@ select {
     height: 200%; /* Twice the height for seamless looping */
     background: url('images/cyberpunk-city.jpg') repeat-y; /* Repeat vertically */
     background-size: 100% auto; /* Preserve aspect ratio, no stretching */
-    animation: scroll-vertical 20s linear infinite;
+    /* animation: scroll-vertical 20s linear infinite; */
 }
 
-@keyframes scroll-vertical {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-50%); } /* Loops halfway up the doubled height */
-}
 
 /* Spaceship */
 .spaceship {
