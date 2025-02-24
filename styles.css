@@ -214,7 +214,7 @@ select {
     position: absolute;
     width: 100%;
     height: 200%;
-    background: url('images/cyberpunk-city.jpg') repeat-y;
+    background: url('images/cyberpunk-city.webp') repeat-y;
     background-size: 100% auto;
     /* animation: scroll-vertical 20s linear infinite; */
 }
