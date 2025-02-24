@@ -3,7 +3,7 @@ body {
     padding: 0;
     height: 100vh;
     overflow: hidden;
-    background: linear-gradient(135deg, #0a0a14, #1a1a33); /* Gen Z gradient */
+    background: linear-gradient(135deg, #0a0a14, #1a1a33);
     font-family: 'Courier New', monospace;
     display: flex;
     justify-content: center;
@@ -148,31 +148,32 @@ select {
     border: 2px solid #00ffcc;
     color: #00ffcc;
     text-shadow: 0 0 5px #00ffcc;
-    margin: 20px;
+    margin: clamp(10px, 2vh, 20px);
     cursor: pointer;
     border-radius: 8px;
+    width: clamp(120px, 30vw, 200px);
 }
 
 /* Pause Button */
 #pause-button {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    padding: clamp(8px, 1.5vw, 10px);
-    font-size: clamp(16px, 2.5vw, 20px);
+    top: clamp(10px, 2vh, 15px);
+    right: clamp(10px, 2vw, 15px);
+    padding: clamp(6px, 1.5vw, 10px);
+    font-size: clamp(14px, 3vw, 20px);
     z-index: 40;
 }
 
 /* Mobile Controls */
 .mobile-controls {
     position: absolute;
-    bottom: 20px;
+    bottom: clamp(10px, 2vh, 20px);
     width: 100%;
     display: flex;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 0 clamp(10px, 2vw, 20px);
     z-index: 40;
-    display: none; /* Hidden by default, shown on mobile */
+    display: none;
 }
 
 #shoot-btn {
@@ -181,7 +182,7 @@ select {
 
 .move-controls {
     display: flex;
-    gap: 10px;
+    gap: clamp(5px, 1vw, 10px);
 }
 
 #move-left, #move-right {
@@ -337,15 +338,15 @@ select {
 /* Score */
 .score {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: clamp(10px, 2vh, 20px);
+    left: clamp(10px, 2vw, 20px);
     color: #00ffcc;
-    font-size: clamp(16px, 3vw, 24px);
+    font-size: clamp(14px, 2.5vw, 24px);
     text-shadow: 0 0 10px #00ffcc, 0 0 20px #ff00cc;
     z-index: 40;
     transition: transform 0.5s ease, opacity 0.5s ease;
     background: rgba(13, 13, 26, 0.7);
-    padding: 5px 15px;
+    padding: clamp(5px, 1vw, 15px);
     border-radius: 10px;
     border: 1px solid #ff00cc;
 }
@@ -370,23 +371,35 @@ select {
 /* Start Screen Text */
 .start-screen p {
     color: #00ffcc;
-    font-size: clamp(12px, 2vw, 18px);
+    font-size: clamp(10px, 2vw, 18px);
     text-shadow: 0 0 5px #00ffcc, 0 0 10px #ff00cc;
-    margin: 20px;
+    margin: clamp(10px, 2vh, 20px);
     text-align: center;
+    max-width: 80%;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 600px) {
     .tv-frame {
-        width: 90vw;
-        height: 85vh;
-        border: 8px solid #2a2a3a;
+        width: 95vw;
+        height: 90vh;
+        border: 6px solid #2a2a3a;
     }
     .glitch {
         font-size: clamp(28px, 8vw, 56px);
     }
     .mobile-controls {
         display: flex;
+    }
+    #pause-button {
+        top: clamp(5px, 1vh, 10px);
+        right: clamp(5px, 1vw, 10px);
+    }
+    .score {
+        font-size: clamp(12px, 2vw, 20px);
+        padding: clamp(3px, 0.8vw, 10px);
+    }
+    .start-screen p {
+        font-size: clamp(8px, 1.8vw, 14px);
     }
 }

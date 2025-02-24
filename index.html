@@ -6,6 +6,8 @@
     <title>Neon Strike</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Preload the background image -->
+    <link rel="preload" href="images/cyberpunk-city.jpg" as="image">
 </head>
 <body>
     <!-- TV Frame -->
@@ -25,7 +27,7 @@
         <!-- Start Screen -->
         <div class="screen start-screen active" id="start-screen">
             <h1 class="glitch" data-text="Neon Strike">Neon Strike</h1>
-            <p>Move: Drag/Touch | Shoot: Tap/Button | Pause: P/<i class="fa-solid fa-pause"></i></p>
+            <p>Move: Drag | Shoot: Tap | Pause: P</p>
             <select id="difficulty">
                 <option value="easy">Easy</option>
                 <option value="medium" selected>Medium</option>
@@ -39,15 +41,6 @@
             <div class="background"></div>
             <div class="spaceship" id="spaceship"></div>
             <div class="score">Score: <span id="score">0</span> | Lives: <span id="lives">3</span> | Time: <span id="timer">2:00</span></div>
-            <button id="pause-button"><i class="fa-solid fa-pause"></i></button>
-            <!-- Mobile Controls -->
-            <div class="mobile-controls">
-                <button id="shoot-btn"><i class="fa-solid fa-bolt"></i></button>
-                <div class="move-controls">
-                    <button id="move-left"><i class="fa-solid fa-arrow-left"></i></button>
-                    <button id="move-right"><i class="fa-solid fa-arrow-right"></i></button>
-                </div>
-            </div>
         </div>
 
         <!-- Pause Menu -->

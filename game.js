@@ -7,10 +7,6 @@ const startButton = document.getElementById('start-button');
 const restartButton = document.getElementById('restart-button');
 const pauseRestartButton = document.getElementById('pause-restart-button');
 const resumeButton = document.getElementById('resume-button');
-const pauseButton = document.getElementById('pause-button');
-const shootBtn = document.getElementById('shoot-btn');
-const moveLeftBtn = document.getElementById('move-left');
-const moveRightBtn = document.getElementById('move-right');
 const difficultySelect = document.getElementById('difficulty');
 const spaceship = document.getElementById('spaceship');
 const scoreElement = document.getElementById('score');
@@ -34,7 +30,9 @@ let shipX, shipY;
 let activeEnemies = 0;
 let bossActive = false;
 let spawnIncreaseInterval, timerInterval;
-let moveSpeed = 5;
+let touchStartX = null;
+let touchStartTime = null;
+let isDragging = false;
 
 function setDifficulty(difficulty) {
     switch (difficulty) {
@@ -70,12 +68,10 @@ function showScreen(screen) {
     pauseMenu.classList.remove('active');
     screen.classList.add('active');
     if (screen === gameScreen) {
-        pauseButton.style.display = 'block';
         scoreDisplay.classList.remove('score-hidden');
         scoreDisplay.classList.add('score-visible');
         bgMusic.play();
     } else {
-        pauseButton.style.display = 'none';
         scoreDisplay.classList.remove('score-visible');
         scoreDisplay.classList.add('score-hidden');
         bgMusic.pause();
@@ -90,27 +86,6 @@ resumeButton.addEventListener('click', () => {
     paused = false;
     showScreen(gameScreen);
 });
-pauseButton.addEventListener('click', pauseGame);
-
-// Mobile Controls
-shootBtn.addEventListener('click', shoot);
-let moveLeftInterval, moveRightInterval;
-moveLeftBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    moveLeftInterval = setInterval(() => {
-        shipX -= moveSpeed;
-        updateShipPosition();
-    }, 16);
-});
-moveLeftBtn.addEventListener('touchend', () => clearInterval(moveLeftInterval));
-moveRightBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    moveRightInterval = setInterval(() => {
-        shipX += moveSpeed;
-        updateShipPosition();
-    }, 16);
-});
-moveRightBtn.addEventListener('touchend', () => clearInterval(moveRightInterval));
 
 function startGame() {
     setDifficulty(difficultySelect.value);
@@ -123,9 +98,9 @@ function startGame() {
     highScoreElement.textContent = highScore;
     
     const tvRect = tvFrame.getBoundingClientRect();
-    shipX = tvRect.width / 2 - spaceship.offsetWidth / 2; // Center horizontally
-    shipY = tvRect.height * 0.75 - spaceship.offsetHeight; // 75% up the frame
-    console.log(`TV Height: ${tvRect.height}, Ship Height: ${spaceship.offsetHeight}, ShipY: ${shipY}`); // Debug
+    shipX = tvRect.width / 2 - spaceship.offsetWidth / 2;
+    shipY = tvRect.height * 0.75 - spaceship.offsetHeight;
+    console.log(`TV Height: ${tvRect.height}, Ship Height: ${spaceship.offsetHeight}, ShipY: ${shipY}`);
     updateShipPosition();
     
     gameActive = true;
@@ -163,21 +138,47 @@ function increaseEnemyCount() {
     spawnRate = Math.max(500, spawnRate - 200);
 }
 
-// Spaceship Movement
+// Spaceship Movement (PC)
 gameScreen.addEventListener('mousemove', (e) => {
-    if (!gameActive || paused) return;
+    if (!gameActive || paused || window.innerWidth <= 600) return;
     const tvRect = tvFrame.getBoundingClientRect();
     shipX = e.clientX - tvRect.left - spaceship.offsetWidth / 2;
     updateShipPosition();
 });
+
+// Mobile Touch Controls
+gameScreen.addEventListener('touchstart', (e) => {
+    if (!gameActive || paused) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartTime = Date.now();
+    isDragging = false;
+}, { passive: false });
 
 gameScreen.addEventListener('touchmove', (e) => {
     if (!gameActive || paused) return;
     e.preventDefault();
     const touch = e.touches[0];
     const tvRect = tvFrame.getBoundingClientRect();
-    shipX = touch.clientX - tvRect.left - spaceship.offsetWidth / 2;
-    updateShipPosition();
+    const newX = touch.clientX - tvRect.left - spaceship.offsetWidth / 2;
+    if (Math.abs(touch.clientX - touchStartX) > 10) { // Threshold for drag
+        isDragging = true;
+        shipX = newX;
+        updateShipPosition();
+    }
+}, { passive: false });
+
+gameScreen.addEventListener('touchend', (e) => {
+    if (!gameActive || paused) return;
+    e.preventDefault();
+    const touchDuration = Date.now() - touchStartTime;
+    if (!isDragging && touchDuration < 300) { // Tap if short duration
+        shoot();
+    }
+    touchStartX = null;
+    touchStartTime = null;
+    isDragging = false;
 }, { passive: false });
 
 function updateShipPosition() {
@@ -186,17 +187,13 @@ function updateShipPosition() {
     const shipHeight = spaceship.offsetHeight;
     
     shipX = Math.max(0, Math.min(shipX, tvRect.width - shipWidth));
-    shipY = Math.max(tvRect.height * 0.5, Math.min(shipY, tvRect.height - shipHeight)); // Allow movement up to halfway
+    shipY = Math.max(tvRect.height * 0.5, Math.min(shipY, tvRect.height - shipHeight));
     spaceship.style.left = `${shipX}px`;
     spaceship.style.top = `${shipY}px`;
 }
 
 // Shooting
 document.addEventListener('click', shoot);
-gameScreen.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    if (!e.target.closest('.mobile-controls')) shoot();
-}, { passive: false });
 
 function shoot() {
     if (!gameActive || paused) return;
@@ -337,6 +334,8 @@ function gameLoop() {
     const boss = document.querySelector('.boss');
     const bossProjectiles = document.querySelectorAll('.boss-projectile');
     const shipRect = spaceship.getBoundingClientRect();
+
+    updateShipPosition();
 
     projectiles.forEach((projectile) => {
         const projRect = projectile.getBoundingClientRect();
