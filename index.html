@@ -3,28 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyberpunk Vertical Shooter</title>
+    <title>Neon Strike</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Start Screen -->
-    <div class="screen start-screen active" id="start-screen">
-        <h1 class="glitch" data-text="Neon Strike">Neon Strike</h1>
-        <button id="start-button">Start Game</button>
-    </div>
+    <!-- TV Frame -->
+    <div class="tv-frame">
+        <div class="crt-overlay"></div>
+        <!-- Audio Elements -->
+        <audio id="bg-music" loop>
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+        </audio>
+        <audio id="shoot-sound">
+            <source src="https://www.myinstants.com/media/sounds/laser.mp3" type="audio/mp3">
+        </audio>
+        <audio id="explosion-sound">
+            <source src="https://www.myinstants.com/media/sounds/explosion.mp3" type="audio/mp3">
+        </audio>
 
-    <!-- Game Screen -->
-    <div class="screen game-container" id="game-screen">
-        <div class="background"></div>
-        <div class="spaceship" id="spaceship"></div>
-        <div class="score">Score: <span id="score">0</span></div>
-    </div>
+        <!-- Start Screen -->
+        <div class="screen start-screen active" id="start-screen">
+            <h1 class="glitch" data-text="Neon Strike">Neon Strike</h1>
+            <p>Move: Mouse/Touch | Shoot: Click/Tap | Pause: P/Button | Survive, defeat the boss!</p>
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+            <button id="start-button">Start Game</button>
+        </div>
 
-    <!-- Game Over Screen -->
-    <div class="screen game-over-screen" id="game-over-screen">
-        <h1 class="glitch" data-text="Game Over">Game Over</h1>
-        <p>Final Score: <span id="final-score">0</span></p>
-        <button id="restart-button">Restart</button>
+        <!-- Game Screen -->
+        <div class="screen game-container" id="game-screen">
+            <div class="background"></div>
+            <div class="spaceship" id="spaceship"></div>
+            <div class="score">Score: <span id="score">0</span> | Lives: <span id="lives">3</span> | Time: <span id="timer">2:00</span></div>
+            <button id="pause-button">Pause</button>
+        </div>
+
+        <!-- Pause Menu -->
+        <div class="screen pause-menu" id="pause-menu">
+            <h1 class="glitch" data-text="Paused">Paused</h1>
+            <button id="resume-button">Resume</button>
+            <button id="pause-restart-button">Restart</button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="screen game-over-screen" id="game-over-screen">
+            <h1 class="glitch" id="game-over-title" data-text="Game Over">Game Over</h1>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <p>High Score: <span id="high-score">0</span></p>
+            <button id="restart-button">Restart</button>
+        </div>
     </div>
 
     <script src="game.js"></script>

@@ -1,11 +1,44 @@
-/* styles.css */
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
     overflow: hidden;
-    background: #0d0d1a;
+    background: #0a0a14;
     font-family: 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* TV Frame */
+.tv-frame {
+    position: relative;
+    width: 80vw;
+    max-width: 800px;
+    height: 80vh;
+    max-height: 600px;
+    background: #1c1c24;
+    border: 10px solid #333;
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* CRT Overlay */
+.crt-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                rgba(255, 255, 255, 0.05);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 30;
+    animation: flicker 0.15s infinite;
+    border-radius: 10px;
+    box-shadow: inset 0 0 50px rgba(0, 255, 204, 0.2);
 }
 
 /* Screen Management */
@@ -18,16 +51,23 @@ body {
     justify-content: center;
     align-items: center;
     color: #00ffcc;
-    text-shadow: 0 0 10px #00ffcc;
+    text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+    transition: opacity 0.5s ease;
+    background: #0d0d1a;
 }
 
 .screen.active {
     display: flex;
+    opacity: 1;
+}
+
+.screen:not(.active) {
+    opacity: 0;
 }
 
 /* Glitch Effect */
 .glitch {
-    font-size: 64px;
+    font-size: clamp(36px, 8vw, 64px);
     position: relative;
     animation: glitch 2s infinite;
 }
@@ -70,22 +110,52 @@ body {
     50% { transform: translate(3px, 0); }
 }
 
+@keyframes flicker {
+    0% { opacity: 0.9; }
+    50% { opacity: 1; }
+    100% { opacity: 0.9; }
+}
+
 /* Buttons */
 button {
-    padding: 15px 30px;
-    font-size: 24px;
+    padding: clamp(10px, 2vw, 15px) clamp(20px, 4vw, 30px);
+    font-size: clamp(16px, 3vw, 24px);
     background: none;
     border: 2px solid #ff00cc;
     color: #ff00cc;
     text-shadow: 0 0 10px #ff00cc;
     cursor: pointer;
     transition: all 0.3s ease;
+    border-radius: 5px;
 }
 
 button:hover {
     background: #ff00cc;
     color: #0d0d1a;
-    box-shadow: 0 0 20px #ff00cc;
+    box-shadow: 0 0 20px #ff00cc, inset 0 0 10px #ff00cc;
+}
+
+/* Difficulty Select */
+select {
+    padding: clamp(8px, 1.5vw, 10px);
+    font-size: clamp(14px, 2.5vw, 20px);
+    background: #0d0d1a;
+    border: 2px solid #00ffcc;
+    color: #00ffcc;
+    text-shadow: 0 0 5px #00ffcc;
+    margin: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Pause Button */
+#pause-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: clamp(8px, 1.5vw, 10px) clamp(15px, 2.5vw, 20px);
+    font-size: clamp(14px, 2vw, 18px);
+    z-index: 40;
 }
 
 /* Game Container */
@@ -98,36 +168,48 @@ button:hover {
 .background {
     position: absolute;
     width: 100%;
-    height: 200%; /* Double height for vertical scroll */
-    background: linear-gradient(0deg, #0d0d1a, #1a1a33, #0d0d1a),
-                url('https://via.placeholder.com/600x1200/1a1a33/0d0d1a?text=Cityscape');
-    background-size: cover, 100% 100%;
+    height: 200%; /* Twice the height for seamless looping */
+    background: url('images/cyberpunk-city.jpg') repeat-y; /* Repeat vertically */
+    background-size: 100% auto; /* Preserve aspect ratio, no stretching */
     animation: scroll-vertical 20s linear infinite;
 }
 
 @keyframes scroll-vertical {
     0% { transform: translateY(0); }
-    100% { transform: translateY(-50%); }
+    100% { transform: translateY(-50%); } /* Loops halfway up the doubled height */
 }
 
 /* Spaceship */
 .spaceship {
     position: absolute;
-    width: 40px;
-    height: 60px;
-    background: linear-gradient(0deg, #00ffcc, #ff00cc);
-    border: 2px solid #00ffcc;
-    border-radius: 10px;
-    box-shadow: 0 0 15px #00ffcc, 0 0 25px #ff00cc;
-    transition: all 0.1s ease;
+    width: clamp(40px, 7vw, 60px);
+    height: clamp(60px, 10vw, 90px);
+    background: url('images/spaceship.png') no-repeat center;
+    background-size: 100% 100%;
     z-index: 10;
+    transition: transform 0.1s ease;
+}
+
+.spaceship.hit {
+    animation: hit 0.2s;
+}
+
+@keyframes hit {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Remove pseudo-elements */
+.spaceship::before, .spaceship::after {
+    display: none;
 }
 
 /* Projectiles */
 .projectile {
     position: absolute;
-    width: 5px;
-    height: 10px;
+    width: clamp(3px, 0.5vw, 5px);
+    height: clamp(6px, 1vw, 10px);
     background: #ff00cc;
     box-shadow: 0 0 10px #ff00cc;
     border-radius: 50%;
@@ -137,18 +219,66 @@ button:hover {
 /* Enemies */
 .enemy {
     position: absolute;
-    width: 40px;
-    height: 40px;
-    background: radial-gradient(#ff3333, #cc0000);
+    width: clamp(40px, 7vw, 60px);
+    height: clamp(40px, 7vw, 60px);
+    background: url('images/enemy.png') no-repeat center;
+    background-size: 100% 100%;
+}
+
+.enemy.fast {
+    width: clamp(30px, 5vw, 45px);
+    height: clamp(30px, 5vw, 45px);
+    background: url('images/enemy-fast.png') no-repeat center;
+    background-size: 100% 100%;
+}
+
+/* Boss */
+.boss {
+    position: absolute;
+    width: clamp(70px, 12vw, 100px);
+    height: clamp(70px, 12vw, 100px);
+    background: radial-gradient(#ff00cc, #660066);
+    border-radius: 20%;
+    box-shadow: 0 0 20px #ff00cc;
+    z-index: 15;
+}
+
+.boss.hit {
+    animation: boss-hit 0.1s;
+}
+
+@keyframes boss-hit {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Boss Projectile */
+.boss-projectile {
+    position: absolute;
+    width: clamp(6px, 1vw, 10px);
+    height: clamp(12px, 2vw, 20px);
+    background: #ff6600;
+    box-shadow: 0 0 10px #ff6600;
     border-radius: 50%;
-    box-shadow: 0 0 15px #ff3333;
+    z-index: 5;
+}
+
+/* Spawn Animation */
+.spawn-anim {
+    animation: spawn 0.3s ease;
+}
+
+@keyframes spawn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 /* Explosion */
 .explosion {
     position: absolute;
-    width: 60px;
-    height: 60px;
+    width: clamp(40px, 7vw, 60px);
+    height: clamp(40px, 7vw, 60px);
     background: radial-gradient(#ffff33, #ff6600);
     border-radius: 50%;
     box-shadow: 0 0 20px #ffff33;
@@ -166,7 +296,59 @@ button:hover {
     top: 20px;
     left: 20px;
     color: #00ffcc;
-    font-size: 24px;
-    text-shadow: 0 0 10px #00ffcc;
-    z-index: 20;
+    font-size: clamp(16px, 3vw, 24px);
+    text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+    z-index: 40;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.score-hidden {
+    transform: translateY(-100px);
+    opacity: 0;
+}
+
+.score-visible {
+    transform: translateY(0);
+    opacity: 1;
+    animation: score-pulse 2s infinite;
+}
+
+@keyframes score-pulse {
+    0% { text-shadow: 0 0 10px #00ffcc; }
+    50% { text-shadow: 0 0 20px #00ffcc, 0 0 30px #00ffcc; }
+    100% { text-shadow: 0 0 10px #00ffcc; }
+}
+
+/* Start Screen Text */
+.start-screen p {
+    color: #00ffcc;
+    font-size: clamp(12px, 2vw, 18px);
+    text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc;
+    margin: 20px;
+    text-align: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    .tv-frame {
+        width: 90vw;
+        height: 85vh;
+        border: 5px solid #333;
+    }
+    .glitch {
+        font-size: clamp(24px, 6vw, 48px);
+    }
+    button {
+        padding: clamp(8px, 1.5vw, 12px) clamp(15px, 3vw, 25px);
+        font-size: clamp(14px, 2.5vw, 20px);
+    }
+    #pause-button {
+        top: 10px;
+        right: 10px;
+    }
+    .score {
+        top: 10px;
+        left: 10px;
+        font-size: clamp(12px, 2.5vw, 20px);
+    }
 }
